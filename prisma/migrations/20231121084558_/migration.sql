@@ -5,10 +5,10 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "role" TEXT NOT NULL,
+    "department_id" INTEGER,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "User_id_fkey" FOREIGN KEY ("id") REFERENCES "Department" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "User_id_fkey" FOREIGN KEY ("id") REFERENCES "Member" ("user_id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "User_department_id_fkey" FOREIGN KEY ("department_id") REFERENCES "Department" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -33,7 +33,8 @@ CREATE TABLE "Member" (
     "email" TEXT NOT NULL,
     "phone_number" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Member_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -65,11 +66,13 @@ CREATE TABLE "RoleAccess" (
 -- CreateTable
 CREATE TABLE "Event" (
     "event_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "user_id" INTEGER NOT NULL,
     "event_name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "date" DATETIME NOT NULL,
     "location" TEXT NOT NULL,
-    "organisedby" TEXT NOT NULL
+    "organisedby" TEXT NOT NULL,
+    CONSTRAINT "Event_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -92,9 +95,6 @@ CREATE UNIQUE INDEX "Token_emailToken_key" ON "Token"("emailToken");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Member_user_id_key" ON "Member"("user_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Department_name_key" ON "Department"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "MemberArea_member_id_key" ON "MemberArea"("member_id");
