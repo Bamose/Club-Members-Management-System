@@ -8,7 +8,11 @@ const router = express.Router();
 // Get all users
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany(
+      {
+        include: {department:true}
+      }
+    );
     res.json(users);
   } catch (error) {
     console.error(error);
@@ -38,15 +42,28 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 // Create a new user
 router.post('/', async (req: Request, res: Response) => {
-  const { username, password, email, role } = req.body;
+  const { username, password, email, role, departmentName } = req.body;
 
   try {
+    // Check if the department exists, or create it if not
+    let department = await prisma.department.findUnique({
+      where: { name: departmentName },
+    });
+
+    if (!department) {
+      department = await prisma.department.create({
+        data: { name: departmentName },
+      });
+    }
+
+    // Create the user with the associated department
     const newUser = await prisma.user.create({
       data: {
         username,
         password,
         email,
         role,
+        department: { connect: { id: department.id } },
       },
     });
 

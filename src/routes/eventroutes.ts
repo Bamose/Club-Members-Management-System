@@ -18,7 +18,7 @@ const router = Router();
     const newEvent = await prisma.event.create({
       data: {
         event_name,
-        user_id:1,
+        user_id:user.id,
         description,
         date,
         location,
