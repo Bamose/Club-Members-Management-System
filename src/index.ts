@@ -4,6 +4,7 @@ import authroutes from './routes/authroutes';
 import eventroutes from './routes/eventroutes';
 import userroutes from './routes/userroutes';
 import { authenticateToken } from './middlewares/authmiddlewares';
+import memberroutes from './routes/memberroutes';
 
 
 
@@ -17,6 +18,7 @@ app.use(cors());
 app.use('/auth', authroutes);
 app.use('/user',authenticateToken, userroutes );
 app.use('/events',authenticateToken, eventroutes);
+app.use('/members',authenticateToken, memberroutes)
 
 app.get('/', (req, res) => {
   res.send('Hello World');

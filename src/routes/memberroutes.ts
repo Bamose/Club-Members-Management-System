@@ -5,19 +5,31 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 // Create a member
-router.post('/members', async (req: Request, res: Response) => {
-  const { first_name, last_name, email, phone_number, department_id } = req.body;
-
+router.post('/', async (req: Request, res: Response) => {
+  const { first_name, last_name, email, phone_number, departmentName } = req.body;
+ //@ts-ignore
+ const user = req.user;
   try {
+    let department = await prisma.department.findUnique({
+        where: { name: departmentName },
+      });
+  
+      if (!department) {
+        department = await prisma.department.create({
+          data: { name: departmentName },
+        });
+      }
+  
     const member = await prisma.member.create({
       data: {
-        user_id:1,
+        user_id:2,
         first_name,
         last_name,
         email,
         phone_number,
-        department_id,
-      },
+        department_name: department.name,
+        
+    },
       include:{user:true}
     });
 
@@ -29,10 +41,11 @@ router.post('/members', async (req: Request, res: Response) => {
 });
 
 // Get all members
-router.get('/members', async (_req: Request, res: Response) => {
+router.get('/', async (_req: Request, res: Response) => {
   try {
     const members = await prisma.member.findMany();
     res.json(members);
+    console.log(members)
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -40,7 +53,7 @@ router.get('/members', async (_req: Request, res: Response) => {
 });
 
 // Get a specific member by ID
-router.get('/members/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   const memberId = parseInt(req.params.id, 10);
 
   try {
@@ -60,9 +73,9 @@ router.get('/members/:id', async (req: Request, res: Response) => {
 });
 
 // Update a member by ID
-router.put('/members/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   const memberId = parseInt(req.params.id, 10);
-  const { first_name, last_name, email, phone_number, department_id } = req.body;
+  const { first_name, last_name, email, phone_number, department_name } = req.body;
 
   try {
     const updatedMember = await prisma.member.update({
@@ -72,7 +85,7 @@ router.put('/members/:id', async (req: Request, res: Response) => {
         last_name,
         email,
         phone_number,
-        department_id,
+        department_name,
       },
     });
 
@@ -84,7 +97,7 @@ router.put('/members/:id', async (req: Request, res: Response) => {
 });
 
 // Delete a member by ID
-router.delete('/members/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   const memberId = parseInt(req.params.id, 10);
 
   try {
